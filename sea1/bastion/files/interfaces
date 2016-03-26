@@ -1,0 +1,15 @@
+auto lo
+iface lo inet loopback
+
+auto eth0.255
+iface eth0.255 inet static
+	address 10.255.255.1
+	netmask 255.255.255.0
+	gateway 10.255.255.254
+	dns-nameservers 8.8.8.8 8.8.4.4
+
+auto eth0.20
+iface eth0.20 inet6 static
+	address 2620:fc:c000::ffff
+	netmask 64
+	gateway 2620:fc:c000::

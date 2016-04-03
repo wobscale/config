@@ -1,1 +1,2 @@
 bastion.sea1.wobscale.website ansible_connection=local
+edge.sea1.wobscale.website ansible_ssh_host=10.255.255.10 ansible_python_interpreter=/usr/local/bin/python2.7

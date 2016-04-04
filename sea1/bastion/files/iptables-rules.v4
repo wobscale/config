@@ -24,8 +24,10 @@
 -A OUTPUT -d 10.255.255.10 -j WOBSCALE_ADMIN
 -A OUTPUT -d 10.255.255.11 -j WOBSCALE_ADMIN
 -A OUTPUT -d 10.255.255.253 -j WOBSCALE_ADMIN
-# ianweller
+# Client machines
 -A OUTPUT -d 10.255.255.100 -m owner --uid-owner ianweller -j ACCEPT
+-A OUTPUT -d 10.255.255.101 -m owner --uid-owner esk -j ACCEPT
+-A OUTPUT -d 10.255.255.102 -m owner --uid-owner jbury -j ACCEPT
 # Block all other requests to the management subnet
 -A OUTPUT -d 10.255.255.0/24 -j REJECT
 

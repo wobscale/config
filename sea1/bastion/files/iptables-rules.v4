@@ -28,6 +28,7 @@
 -A OUTPUT -d 10.255.255.100 -m owner --uid-owner ianweller -j ACCEPT
 -A OUTPUT -d 10.255.255.101 -m owner --uid-owner esk -j ACCEPT
 -A OUTPUT -d 10.255.255.102 -m owner --uid-owner jbury -j ACCEPT
+-A OUTPUT -d 10.255.255.103 -m owner --uid-owner srd -j ACCEPT
 # Block all other requests to the management subnet
 -A OUTPUT -d 10.255.255.0/24 -j REJECT
 

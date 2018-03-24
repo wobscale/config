@@ -1,4 +1,4 @@
-## Adding an IP Addy mapping
+## Adding an IP Address mapping
 
 ### Prereqs
 
@@ -15,12 +15,17 @@ From the management network, you may access the router at 10.255.255.10 over ssh
 ```
 $ ssh 10.255.255.10
 $ # Should be on da bsd
-$ doas vim /etc/dhcpd.conf
-
+$ cp /etc/dhcpd.conf $HOME/dhcpd.conf
+$ vim $HOME/dhcpd.conf
+# do some editing
 # Respect the existing format. Mimic it. Love it. TODO, document it and ansible it.
+
+$ dhcpd -n -c $HOME/dhcpd.conf && echo $?
+0
 
 # Validate. No ip or mac should be duplicated. Ever. Feel free to do a `grep -E "\d+.\d+.\d+.\d+" | uniq -c` type magic (note: totally untested one-liner for that file)
 
+$ doas mv $HOME/dhcpd.conf /etc/dhcpd.conf
 $ doas /etc/rc.d/dhcpd check # Service is running
 $ doas /etc/rc.d/dhcpd restart
 $ doas /etc/rc.d/dhcpd check # Service is running
@@ -28,6 +33,5 @@ $ sleep 3
 $ doas /etc/rc.d/dhcpd check # Service is running
 
 # Fuckit shipit
-
 ```
 

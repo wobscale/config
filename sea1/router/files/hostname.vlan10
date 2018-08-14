@@ -1,0 +1,4 @@
+inet 206.81.81.87 255.255.254.0 NONE vlandev em0
+inet6 alias 2001:504:16::faf1 64
+mtu 1500
+description "SIX network"

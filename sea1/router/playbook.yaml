@@ -1,0 +1,52 @@
+---
+- hosts:
+    - edge.sea1.wobscale.website
+  vars:
+    users: [ilianaw, esk]
+  become_method: doas
+  tasks:
+    - name: install ports
+      openbsd_pkg: name={{ item }} state=latest
+      with_items:
+        - ansible
+        - git
+        - htop
+        - screen--
+        - vim--no_x11
+      tags:
+        - slow
+    - name: sshd PasswordAuthentication=no
+      lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PasswordAuthentication" line="PasswordAuthentication no" state=present
+      notify: restart sshd
+    - name: set up users
+      user: name={{ item }} groups=wheel
+      with_items: "{{ users }}"
+    - name: set up authorized_keys
+      authorized_key: user={{ item }} key={{ lookup('file', 'files/ssh/' + item) }} state=present
+      with_items: "{{ users }}"
+    - name: rc.conf.local
+      copy: src=files/rc.conf.local dest=/etc/rc.conf.local owner=root group=wheel mode=0644
+    - name: hostname files
+      copy: src=files/hostname.{{ item }} dest=/etc/hostname.{{ item }} owner=root group=wheel mode=0640
+      with_items:
+        - em0
+        - em1
+        - vlan10
+        - vlan12
+        - vlan20
+        - vlan255
+    - name: doas.conf
+      copy: src=files/doas.conf dest=/etc/doas.conf owner=root group=wheel mode=0600
+    - name: bgpd.conf
+      copy: src=files/bgpd.conf dest=/etc/bgpd.conf owner=root group=wheel mode=0600
+    - name: dhcpd.conf
+      copy: src=files/dhcpd.conf dest=/etc/dhcpd.conf owner=root group=wheel mode=0644
+    - name: rtadvd.conf
+      copy: src=files/rtadvd.conf dest=/etc/rtadvd.conf owner=root group=wheel mode=0644
+    - name: sysctl.conf
+      copy: src=files/sysctl.conf dest=/etc/sysctl.conf owner=root group=wheel mode=0644
+    - name: motd
+      copy: src=files/motd dest=/etc/motd owner=root group=operator mode=0664
+  handlers:
+    - name: restart sshd
+      service: name=sshd state=restarted

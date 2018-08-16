@@ -1,0 +1,6 @@
+bgpd_flags=
+dhcpd_flags=vlan20
+ntpd_flags=NO
+rtadvd_flags=vlan20
+
+pf=NO

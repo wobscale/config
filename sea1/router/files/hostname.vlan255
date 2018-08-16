@@ -1,0 +1,3 @@
+inet 10.255.255.10 255.255.255.0 NONE vlandev em1
+mtu 1500
+description "Management network"

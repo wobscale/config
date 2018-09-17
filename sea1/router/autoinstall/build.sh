@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# SPDX-License-Identifier: GPL-3.0-only
 
 # TODO: perhaps boot with a serial console and use expect to automatically type the autoinstall bits
 # or perhaps: not

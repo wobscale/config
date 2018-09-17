@@ -6,6 +6,11 @@
     users: [ilianaw, esk]
   become_method: doas
   tasks:
+    - name: get kern.version
+      shell: 'sysctl -n kern.version | sed 1q'
+      register: kern_version
+      changed_when: False
+      check_mode: no
     - name: install ports
       openbsd_pkg: name={{ item }} state=latest
       with_items:
@@ -47,7 +52,7 @@
     - name: sysctl.conf
       copy: src=files/sysctl.conf dest=/etc/sysctl.conf owner=root group=wheel mode=0644
     - name: motd
-      copy: src=files/motd dest=/etc/motd owner=root group=operator mode=0664
+      template: src=templates/motd.j2 dest=/etc/motd owner=root group=operator mode=0664
     - name: installurl
       copy: src=files/installurl dest=/etc/installurl owner=root group=wheel mode=0644
   handlers:

@@ -48,6 +48,8 @@
       copy: src=files/sysctl.conf dest=/etc/sysctl.conf owner=root group=wheel mode=0644
     - name: motd
       copy: src=files/motd dest=/etc/motd owner=root group=operator mode=0664
+    - name: installurl
+      copy: src=files/installurl dest=/etc/installurl owner=root group=wheel mode=0644
   handlers:
     - name: restart sshd
       service: name=sshd state=restarted

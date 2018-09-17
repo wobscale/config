@@ -48,16 +48,28 @@
       copy: src=files/doas.conf dest=/etc/doas.conf owner=root group=wheel mode=0600
     - name: bgpd.conf
       copy: src=files/bgpd.conf dest=/etc/bgpd.conf owner=root group=wheel mode=0600
+      notify: reload bgpd
     - name: dhcpd.conf
       copy: src=files/dhcpd.conf dest=/etc/dhcpd.conf owner=root group=wheel mode=0644
+      notify: restart dhcpd
     - name: rtadvd.conf
       copy: src=files/rtadvd.conf dest=/etc/rtadvd.conf owner=root group=wheel mode=0644
+      notify: restart rtadvd
     - name: sysctl.conf
+      # NOTE: sysctl.conf changes are not automatically made because sysctl(1)
+      # does not have a mode to read a sysctl.conf file. YOU MUST MAKE THESE
+      # CHANGES MANUALLY TOO!
       copy: src=files/sysctl.conf dest=/etc/sysctl.conf owner=root group=wheel mode=0644
     - name: motd
       template: src=templates/motd.j2 dest=/etc/motd owner=root group=operator mode=0664
     - name: installurl
       copy: src=files/installurl dest=/etc/installurl owner=root group=wheel mode=0644
   handlers:
+    - name: reload bgpd
+      command: bgpctl reload
+    - name: restart dhcpd
+      service: name=dhcpd state=restarted
+    - name: restart rtadvd
+      service: name=rtadvd state=restarted
     - name: restart sshd
       service: name=sshd state=restarted

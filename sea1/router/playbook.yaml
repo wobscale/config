@@ -28,7 +28,7 @@
     - name: empty /root/.ssh/authorized_keys
       copy: src=empty dest=/root/.ssh/authorized_keys owner=root group=wheel mode=0600
     - name: set up users
-      user: name={{ item }} groups=wheel
+      user: name={{ item }} groups=wheel password='*************'
       with_items: "{{ users }}"
     - name: set up authorized_keys
       authorized_key: user={{ item }} key={{ lookup('file', 'files/ssh/' + item) }} state=present

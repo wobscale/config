@@ -6,11 +6,6 @@
     users: [ilianaw, esk]
   become_method: doas
   tasks:
-    - name: get kern.version
-      shell: 'sysctl -n kern.version | sed 1q'
-      register: kern_version
-      changed_when: False
-      check_mode: no
     - name: install ports
       openbsd_pkg: name={{ item }} state=latest
       with_items:
@@ -21,9 +16,19 @@
         - vim--no_x11
       tags:
         - slow
+    ### Tasks that require hitting the internet must go above this line ###
+    - name: delete /etc/resolv.conf
+      file: path=/etc/resolv.conf state=absent
+    - name: get kern.version
+      shell: 'sysctl -n kern.version | sed 1q'
+      register: kern_version
+      changed_when: False
+      check_mode: no
     - name: sshd PasswordAuthentication=no
       lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PasswordAuthentication" line="PasswordAuthentication no" state=present
       notify: restart sshd
+    - name: empty /root/.ssh/authorized_keys
+      copy: src=empty dest=/root/.ssh/authorized_keys owner=root group=wheel mode=0600
     - name: set up users
       user: name={{ item }} groups=wheel
       with_items: "{{ users }}"

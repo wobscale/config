@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# SPDX-License-Identifier: GPL-3.0-only
 
 . vars
 

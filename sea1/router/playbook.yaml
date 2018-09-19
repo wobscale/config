@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-only
 ---
 - hosts:
     - edge.sea1.wobscale.website
@@ -6,20 +7,28 @@
   become_method: doas
   tasks:
     - name: install ports
-      openbsd_pkg: name={{ item }} state=latest
+      openbsd_pkg: name={{ item }} state=present
       with_items:
         - ansible
         - git
         - htop
         - screen--
         - vim--no_x11
-      tags:
-        - slow
+    ### Tasks that require hitting the internet must go above this line ###
+    - name: delete /etc/resolv.conf
+      file: path=/etc/resolv.conf state=absent
+    - name: get kern.version
+      shell: 'sysctl -n kern.version | sed 1q'
+      register: kern_version
+      changed_when: False
+      check_mode: no
     - name: sshd PasswordAuthentication=no
       lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PasswordAuthentication" line="PasswordAuthentication no" state=present
       notify: restart sshd
+    - name: empty /root/.ssh/authorized_keys
+      copy: src=empty dest=/root/.ssh/authorized_keys owner=root group=wheel mode=0600
     - name: set up users
-      user: name={{ item }} groups=wheel
+      user: name={{ item }} groups=wheel password='*************'
       with_items: "{{ users }}"
     - name: set up authorized_keys
       authorized_key: user={{ item }} key={{ lookup('file', 'files/ssh/' + item) }} state=present
@@ -39,14 +48,35 @@
       copy: src=files/doas.conf dest=/etc/doas.conf owner=root group=wheel mode=0600
     - name: bgpd.conf
       copy: src=files/bgpd.conf dest=/etc/bgpd.conf owner=root group=wheel mode=0600
+      notify: reload bgpd
     - name: dhcpd.conf
       copy: src=files/dhcpd.conf dest=/etc/dhcpd.conf owner=root group=wheel mode=0644
+      notify: restart dhcpd
     - name: rtadvd.conf
       copy: src=files/rtadvd.conf dest=/etc/rtadvd.conf owner=root group=wheel mode=0644
+      notify: restart rtadvd
     - name: sysctl.conf
+      # NOTE: sysctl.conf changes are not automatically made because sysctl(1)
+      # does not have a mode to read a sysctl.conf file. YOU MUST MAKE THESE
+      # CHANGES MANUALLY TOO!
       copy: src=files/sysctl.conf dest=/etc/sysctl.conf owner=root group=wheel mode=0644
     - name: motd
-      copy: src=files/motd dest=/etc/motd owner=root group=operator mode=0664
+      template: src=templates/motd.j2 dest=/etc/motd owner=root group=operator mode=0664
+    - name: installurl
+      copy: src=files/installurl dest=/etc/installurl owner=root group=wheel mode=0644
+  # Handlers are disabled when bootstrapping so that services aren't started in
+  # the bootstrapping VM. We can detect if we're bootstrapping by checking for
+  # the presence of the vlan20 network device.
   handlers:
+    - name: reload bgpd
+      command: bgpctl reload
+      when: '"vlan20" in ansible_interfaces'
+    - name: restart dhcpd
+      service: name=dhcpd state=restarted
+      when: '"vlan20" in ansible_interfaces'
+    - name: restart rtadvd
+      service: name=rtadvd state=restarted
+      when: '"vlan20" in ansible_interfaces'
     - name: restart sshd
       service: name=sshd state=restarted
+      when: '"vlan20" in ansible_interfaces'

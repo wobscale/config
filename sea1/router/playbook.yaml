@@ -7,13 +7,14 @@
   become_method: doas
   tasks:
     - name: install ports
-      openbsd_pkg: name={{ item }} state=present
-      with_items:
-        - ansible
-        - git
-        - htop
-        - screen--
-        - vim--no_x11
+      openbsd_pkg:
+        state: present
+        name:
+          - ansible
+          - git
+          - htop
+          - screen--
+          - vim--no_x11
     ### Tasks that require hitting the internet must go above this line ###
     - name: delete /etc/resolv.conf
       file: path=/etc/resolv.conf state=absent

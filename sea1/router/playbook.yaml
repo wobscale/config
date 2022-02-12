@@ -65,6 +65,8 @@
       template: src=templates/motd.j2 dest=/etc/motd owner=root group=operator mode=0664
     - name: installurl
       copy: src=files/installurl dest=/etc/installurl owner=root group=wheel mode=0644
+    - name: six-updown.sh
+      copy: src=files/six-updown.sh dest=/usr/local/sbin/six-updown.sh owner=root group=wheel mode=0755
   # Handlers are disabled when bootstrapping so that services aren't started in
   # the bootstrapping VM. We can detect if we're bootstrapping by checking for
   # the presence of the vlan20 network device.

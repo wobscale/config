@@ -10,5 +10,5 @@ for neighbor in $(grep 'neighbor ' /etc/bgpd.conf | awk '{ print $2 }' | grep -F
     echo -n "bring $neighbor $1? "
     read -r prompt
     [[ "$prompt" = "y" ]] || exit 2
-    ( set -x; bgpctl neighbor "$neighbor" "$1" "$2" )
+    ( set -x; bgpctl neighbor "$neighbor" "$1" )
 done

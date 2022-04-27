@@ -1,5 +1,5 @@
 inet6 2620:fc:c000:: 64 vlandev em1
 inet alias 209.251.245.254 255.255.255.0 NONE
-!route add -net 2620:fc:c000:6960::/60 fe80::216:3eff:fe2c:5513%vlan20
+!route add -net 2620:fc:c000:6960::/60 fe80::6960%vlan20
 mtu 1500
 description "Local network"

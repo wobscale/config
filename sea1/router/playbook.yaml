@@ -3,7 +3,7 @@
 - hosts:
     - edge.sea1.wobscale.website
   vars:
-    users: [ilianaw, esk]
+    users: [ilianaw, esk, flurry]
   become_method: doas
   tasks:
     - name: install ports

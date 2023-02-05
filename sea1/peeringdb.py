@@ -92,11 +92,18 @@ def construct_network(network):
             i = 0
             ipv6_yet = True
 
+        if network["data"]["asn"] == 33108:
+            descr = "SIX rs{}".format(int(neighbor) % 256)
+        else:
+            descr = "AS{}{}".format(network["data"]["asn"], ["", "+", "!", "@"][i])
+        if len(descr) > 8:
+            descr += str(neighbor.version)
+        else:
+            descr = "{: <8}v{}".format(descr, neighbor.version)
+
         neigh = [
-            'descr "{}v{}x{} {}"'.format(
-                network["data"]["asn"],
-                neighbor.version,
-                i,
+            'descr "{} {}"'.format(
+                descr,
                 escape(network["data"]["name"]),
             ),
             "announce IPv{} unicast".format(neighbor.version),

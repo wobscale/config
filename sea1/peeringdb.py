@@ -7,32 +7,32 @@ import urllib.request
 
 IXLAN = 13  # Seattle Internet Exchange (MTU 1500)
 PEERS = [
-    6939,  # Hurricane Electric
-    174,  # Cogent
-    33108,  # SIX Route Servers
-    6456,  # Altopia
     42,  # PCH
-    3856,  # PCH
-    46489,  # Twitch
-    19754,  # Fusion
-    19679,  # Dropbox
-    16276,  # OVH
-    395823,  # doof.net
-    8075,  # Microsoft
-    16509,  # Amazon
+    174,  # Cogent
+    714,  # Apple
     3361,  # Digital Fortress
-    25668,  # AEBC
-    36459,  # GitHub
-    32934,  # Meta
-    32212,  # Sky Fiber
-    46997,  # Nato Internet
-    20940,  # Akamai
-    47065,  # PEERING Testbed
+    3856,  # PCH
+    6456,  # Altopia
+    6939,  # Hurricane Electric
+    8075,  # Microsoft
+    11404,  # Wave
+    16276,  # OVH
+    16509,  # Amazon
     18106,  # ViewQwest
+    19679,  # Dropbox
+    19754,  # Fusion
+    20940,  # Akamai
+    25668,  # AEBC
+    32212,  # Sky Fiber
+    32934,  # Meta
+    33108,  # SIX Route Servers
+    36459,  # GitHub
+    46489,  # Twitch
+    46997,  # Nato Internet
+    47065,  # PEERING Testbed
     62887,  # Whitesky
     63069,  # Sureline
-    714,  # Apple
-    11404,  # Wave
+    395823,  # doof.net
 ]
 DENY_PEERS = [13335, 53340]
 
@@ -159,16 +159,16 @@ if __name__ == "__main__":
     conf = [
         "### THIS FILE IS GENERATED",
         "### modify peeringdb.py in the config repo instead",
+        "AS 64241",
         "listen on 206.81.81.87",
         "listen on 2001:504:16::faf1",
         "listen on 38.142.48.186",
         "listen on 2001:550:2:13::83:2",
-        "AS 64241",
-        "router-id 206.81.81.87",
         "network 209.251.245.0/24",
         "network 2620:fc:c000::/48",
+        "router-id 206.81.81.87",
     ]
-    conf.extend(construct_network(networks[asn]) for asn in PEERS)
+    conf.extend(map(construct_network, networks.values()))
     conf.append(
         {
             'match to group "AS33108" set': [
@@ -177,8 +177,7 @@ if __name__ == "__main__":
         }
     )
     conf.extend(
-        'deny quick from group "AS33108" peer-as {}'.format(asn)
-        for asn in sorted(DENY_PEERS)
+        'deny quick from group "AS33108" peer-as {}'.format(asn) for asn in DENY_PEERS
     )
 
     print(serialize(conf))

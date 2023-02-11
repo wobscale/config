@@ -7,6 +7,9 @@ import urllib.request
 
 IXLAN = 13  # Seattle Internet Exchange (MTU 1500)
 PEERS = [
+    6939,  # Hurricane Electric
+    174,  # Cogent
+    33108,  # SIX Route Servers
     6456,  # Altopia
     42,  # PCH
     3856,  # PCH
@@ -31,6 +34,7 @@ PEERS = [
     714,  # Apple
     11404,  # Wave
 ]
+DENY_PEERS = [13335, 53340]
 
 
 def fetch_networks(asns):
@@ -136,7 +140,21 @@ def serialize(x):
 
 
 if __name__ == "__main__":
-    networks = fetch_networks([6939, 33108, *PEERS])
+    networks = fetch_networks(PEERS)
+
+    # SIX Route Servers -- prio 99
+    networks[33108]["options"] = ["set localpref 99", "enforce neighbor-as no"]
+
+    # Hurricane Electric -- prio 90, no max prefix
+    networks[6939]["options"] = ["set localpref 90", "set weight +5"]
+    del networks[6939]["data"]["info_prefixes4"]
+    del networks[6939]["data"]["info_prefixes6"]
+
+    # Cogent -- not via SIX, prio 80, no max prefix
+    networks[174]["neighbors"] = ["38.142.48.185", "2001:550:2:13::83:1"]
+    networks[174]["options"] = ["set localpref 80", "set prepend-self 3"]
+    del networks[174]["data"]["info_prefixes4"]
+    del networks[174]["data"]["info_prefixes6"]
 
     conf = [
         "### THIS FILE IS GENERATED",
@@ -150,40 +168,17 @@ if __name__ == "__main__":
         "network 209.251.245.0/24",
         "network 2620:fc:c000::/48",
     ]
-
-    # Hurricane Electric -- transit network, so don't set max-prefix
-    as6939 = networks.pop(6939)
-    as6939["options"] = ["set localpref 90", "set weight +5"]
-    del as6939["data"]["info_prefixes4"]
-    del as6939["data"]["info_prefixes6"]
-    conf.append(construct_network(as6939))
-
-    # Cogent -- transit network
-    conf.append(
-        construct_network(
-            {
-                "data": {
-                    "name": "Cogent Communications, Inc.",
-                    "asn": 174,
-                },
-                "options": ["set localpref 80", "set prepend-self 3"],
-                "neighbors": ["38.142.48.185", "2001:550:2:13::83:1"],
-            }
-        )
-    )
-
-    # SIX route servers
-    as33108 = networks.pop(33108)
-    as33108["options"] = ["set localpref 99", "enforce neighbor-as no"]
-    conf.append(construct_network(as33108))
-
-    conf.extend(
-        [
-            'match to group "AS33108" set { community 0:13335 community 0:53340 }',
-            'deny quick from group "AS33108" peer-as 13335',
-            'deny quick from group "AS33108" peer-as 53340',
-        ]
-    )
-
     conf.extend(construct_network(networks[asn]) for asn in PEERS)
+    conf.append(
+        {
+            'match to group "AS33108" set': [
+                " ".join(f"community 0:{asn}" for asn in DENY_PEERS)
+            ]
+        }
+    )
+    conf.extend(
+        'deny quick from group "AS33108" peer-as {}'.format(asn)
+        for asn in sorted(DENY_PEERS)
+    )
+
     print(serialize(conf))

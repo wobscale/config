@@ -92,16 +92,15 @@ def construct_network(network):
             i = 0
             ipv6_yet = True
 
-        if network["data"]["asn"] == 33108:
-            descr = "SIX rs{}".format(int(neighbor) % 256)
-        else:
-            descr = "AS{}{}".format(network["data"]["asn"], ["", "+", "!", "@"][i])
-        if len(descr) > 8:
-            descr += str(neighbor.version)
-        else:
-            descr = "{: <8}v{}".format(descr, neighbor.version)
-        descr = "{} {}".format(descr, escape(network["data"]["name"]))[:31]
-
+        descr = "v{}{}{}".format(
+            neighbor.version,
+            (
+                " rs{} ".format(int(neighbor) % 256)
+                if network["data"]["asn"] == 33108
+                else [" ", "+", "!", "@"][i]
+            ),
+            escape(network["data"]["name"]),
+        )[:31]
         neigh = [
             'descr "{}"'.format(descr),
             "announce IPv{} unicast".format(neighbor.version),
@@ -115,11 +114,7 @@ def construct_network(network):
         group.append({"neighbor {}".format(neighbor): neigh})
         i += 1
 
-    return {'group "{}"'.format(group_name(network)): group}
-
-
-def group_name(network):
-    return "AS{asn} {name}".format(**network["data"])[:31]
+    return {'group "AS{}"'.format(network["data"]["asn"]): group}
 
 
 def escape(s):
@@ -183,11 +178,10 @@ if __name__ == "__main__":
     conf.append(construct_network(as33108))
 
     conf.extend(
-        s.format(group_name(as33108))
-        for s in [
-            'match to group "{}" set {{ community 0:13335 community 0:53340 }}',
-            'deny quick from group "{}" peer-as 13335',
-            'deny quick from group "{}" peer-as 53340',
+        [
+            'match to group "AS33108" set { community 0:13335 community 0:53340 }',
+            'deny quick from group "AS33108" peer-as 13335',
+            'deny quick from group "AS33108" peer-as 53340',
         ]
     )
 

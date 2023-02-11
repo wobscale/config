@@ -97,7 +97,7 @@ def construct_network(network):
             (
                 " rs{} ".format(int(neighbor) % 256)
                 if network["data"]["asn"] == 33108
-                else [" ", "+", "!", "@"][i]
+                else " +!@#%"[i]
             ),
             escape(network["data"]["name"]),
         )[:31]

@@ -100,12 +100,10 @@ def construct_network(network):
             descr += str(neighbor.version)
         else:
             descr = "{: <8}v{}".format(descr, neighbor.version)
+        descr = "{} {}".format(descr, escape(network["data"]["name"]))[:31]
 
         neigh = [
-            'descr "{} {}"'.format(
-                descr,
-                escape(network["data"]["name"]),
-            ),
+            'descr "{}"'.format(descr),
             "announce IPv{} unicast".format(neighbor.version),
         ]
 
@@ -117,11 +115,11 @@ def construct_network(network):
         group.append({"neighbor {}".format(neighbor): neigh})
         i += 1
 
-    return {
-        'group "AS{} {}"'.format(
-            network["data"]["asn"], escape(network["data"]["name"])
-        ): group
-    }
+    return {'group "{}"'.format(group_name(network)): group}
+
+
+def group_name(network):
+    return "AS{asn} {name}".format(**network["data"])[:31]
 
 
 def escape(s):
@@ -185,10 +183,11 @@ if __name__ == "__main__":
     conf.append(construct_network(as33108))
 
     conf.extend(
-        [
-            'match to group "SIX Route Servers" set { community 0:13335 community 0:53340 }',
-            'deny quick from group "SIX Route Servers" peer-as 13335',
-            'deny quick from group "SIX Route Servers" peer-as 53340',
+        s.format(group_name(as33108))
+        for s in [
+            'match to group "{}" set {{ community 0:13335 community 0:53340 }}',
+            'deny quick from group "{}" peer-as 13335',
+            'deny quick from group "{}" peer-as 53340',
         ]
     )
 

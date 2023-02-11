@@ -48,7 +48,13 @@
     - name: doas.conf
       copy: src=files/doas.conf dest=/etc/doas.conf owner=root group=wheel mode=0600
     - name: bgpd.conf
-      copy: src=files/bgpd.conf dest=/etc/bgpd.conf owner=root group=wheel mode=0600
+      copy:
+        src: files/bgpd.conf
+        dest: /etc/bgpd.conf
+        owner: root
+        group: wheel
+        mode: 0600
+        validate: 'bgpd -nf %s'
       notify: reload bgpd
     - name: dhcpd.conf
       copy: src=files/dhcpd.conf dest=/etc/dhcpd.conf owner=root group=wheel mode=0644

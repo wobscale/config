@@ -156,6 +156,9 @@ if __name__ == "__main__":
     del networks[174]["data"]["info_prefixes4"]
     del networks[174]["data"]["info_prefixes6"]
 
+    # Digital Fortress -- does not currently peer via IPv6
+    networks[3361]["neighbors"].remove("2001:504:16::d21")
+
     conf = [
         "### THIS FILE IS GENERATED",
         "### modify peeringdb.py in the config repo instead",

@@ -15,6 +15,7 @@ PEERS = [
     6456,  # Altopia
     6939,  # Hurricane Electric
     8075,  # Microsoft
+    8309,  # Sipartech
     11404,  # Wave
     16276,  # OVH
     16509,  # Amazon

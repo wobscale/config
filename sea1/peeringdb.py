@@ -146,14 +146,9 @@ if __name__ == "__main__":
     # SIX Route Servers -- prio 99
     networks[33108]["options"] = ["set localpref 99", "enforce neighbor-as no"]
 
-    # Hurricane Electric -- prio 90, no max prefix
-    networks[6939]["options"] = ["set localpref 90", "set weight +5"]
-    del networks[6939]["data"]["info_prefixes4"]
-    del networks[6939]["data"]["info_prefixes6"]
-
     # Cogent -- not via SIX, prio 80, no max prefix
     networks[174]["neighbors"] = ["38.142.48.185", "2001:550:2:13::83:1"]
-    networks[174]["options"] = ["set localpref 80", "set prepend-self 3"]
+    networks[174]["options"] = ["set localpref 80"]
     del networks[174]["data"]["info_prefixes4"]
     del networks[174]["data"]["info_prefixes6"]
 

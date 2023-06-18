@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     # Cogent -- not via SIX, prio 80, no max prefix
     networks[174]["neighbors"] = ["38.142.48.185", "2001:550:2:13::83:1"]
-    networks[174]["options"] = ["set localpref 80"]
+    networks[174]["options"] = ["set localpref 80", "set prepend-self 3"]
     del networks[174]["data"]["info_prefixes4"]
     del networks[174]["data"]["info_prefixes6"]
 

@@ -17,6 +17,7 @@ PEERS = [
     8075,  # Microsoft
     8309,  # Sipartech
     11404,  # Wave
+    13150,  # Cato Networks
     16276,  # OVH
     16509,  # Amazon
     18106,  # ViewQwest
@@ -86,7 +87,7 @@ def construct_network(network):
         group.append(option)
 
     neighbors = sorted(
-        (ipaddress.ip_address(x) for x in network["neighbors"]),
+        (ipaddress.ip_address(x) for x in network["neighbors"] if x is not None),
         key=ipaddress.get_mixed_type_key,
     )
     i = 0

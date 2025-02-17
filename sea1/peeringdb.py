@@ -33,7 +33,6 @@ PEERS = [
     46997,  # Nato Internet
     47065,  # PEERING Testbed
     62887,  # Whitesky
-    63069,  # Sureline
     395823,  # doof.net
 ]
 DENY_PEERS = [13335, 53340]
@@ -145,7 +144,14 @@ if __name__ == "__main__":
     networks = fetch_networks(PEERS)
 
     # SIX Route Servers -- prio 99
-    networks[33108]["options"] = ["set localpref 99", "enforce neighbor-as no"]
+    networks[33108]["options"] = [
+        "set localpref 99",
+        "enforce neighbor-as no",
+        # a little risky, but necessary to pick up our announcement of
+        # 2620:fc:c001::/48 at sea4 via Cofractal, and mitigated by the
+        # `deny quick` filters for our own announcements
+        "enforce local-as no",
+    ]
 
     # Hurricane Electric -- free IPv6 transit via IX
     networks[6939]["options"] = ["set localpref 90"]
@@ -169,7 +175,9 @@ if __name__ == "__main__":
         "listen on 38.142.48.186",
         "listen on 2001:550:2:13::83:2",
         "network 209.251.245.0/24",
+        "deny quick from ebgp prefix 209.251.245.0/24",
         "network 2620:fc:c000::/48",
+        "deny quick from ebgp prefix 2620:fc:c000::/48",
         "router-id 206.81.81.87",
     ]
     conf.extend(map(construct_network, networks.values()))
